@@ -1,0 +1,16 @@
+package chucknorris
+
+fun main() {
+    println("Input string:")
+    val input = readln()
+    val myList = mutableListOf<Char>()
+    if (input.isEmpty()) {
+        myList.add(' ')
+    } else {
+        for (i in input) {
+            myList.add(i)
+            myList.add(' ')
+        }
+    }
+    println(myList.joinToString(""))
+}
