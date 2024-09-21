@@ -1,0 +1,9 @@
+fun main() {
+    println("Input string:")
+    val input = readln().toCharArray()
+    println("The result:")
+    for (i in input) {
+        val output = toBinaryString(i.code).toInt()
+        println("$i = ${String.format("%07d", output)}")
+    }
+}
