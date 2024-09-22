@@ -1,0 +1,57 @@
+import java.lang.Integer.toBinaryString
+
+fun main() {
+
+    encrypts()
+
+}
+
+fun encrypts() {
+    //
+    val newString = StringBuilder()
+
+    val myList = mutableListOf<String>()
+
+    println("Input string:")
+    val str = readln()
+
+    val input = str.toCharArray()
+    for (i in input) {
+        val output = toBinaryString(i.code).toInt()
+        newString.append(String.format("%07d", output))
+    }
+
+    while (newString.isNotEmpty()) {
+
+        if (newString.first() == '0') {
+            val regex0 = "0*".toRegex()
+            val match = regex0.find(newString)?.value ?: ""
+            if (match != "") {
+                val output = match.toInt()
+                val replacement = String.format("00 %0${match.length}d", output)
+                myList.add(replacement)
+            }
+            newString.delete(0, match.length)
+        }
+
+        if (newString.isNotEmpty()) {
+            if (newString.first() == '1') {
+                val regex1 = "1*".toRegex()
+                val match = regex1.find(newString)?.value ?: ""
+                if (match != "") {
+                    val output = match.toInt()
+                    val converter = output.toString().map { 0 }.joinToString("").toInt()
+                    val replacement = String.format("0 %0${match.length}d", converter)
+                    myList.add(replacement)
+                }
+                newString.delete(0, match.length)
+            }
+        }
+    }
+
+    println("The result:")
+
+    val finalString = myList.joinToString(" ")
+    println(finalString)
+
+}
