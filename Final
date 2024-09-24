@@ -1,0 +1,148 @@
+package chucknorris
+
+import java.lang.Integer.toBinaryString
+
+fun main() {
+    mainMenu()
+
+}
+
+fun mainMenu() {
+    while (true) {
+        println("Please input operation (encode/decode/exit):")
+        when(val operation = readln()) {
+            "encode"-> encrypts()
+            "decode"-> decrypts()
+            "exit"-> {
+                println("Bye!")
+                break
+            }
+            else -> println("There is no '$operation' operation")
+        }
+    }
+}
+
+fun encrypts() {
+
+    val newString = StringBuilder()
+
+    val myList = mutableListOf<String>()
+
+    println("Input string:")
+    val str = readln()
+
+    val input = str.toCharArray()
+    for (i in input) {
+        val output = toBinaryString(i.code).toInt()
+        newString.append(String.format("%07d", output))
+    }
+
+    while (newString.isNotEmpty()) {
+
+        if (newString.first() == '0') {
+            val regex0 = "0*".toRegex()
+            val match = regex0.find(newString)?.value ?: ""
+            if (match != "") {
+                val output = match.toInt()
+                val replacement = String.format("00 %0${match.length}d", output)
+                myList.add(replacement)
+            }
+            newString.delete(0, match.length)
+        }
+
+        if (newString.isNotEmpty()) {
+            if (newString.first() == '1') {
+                val regex1 = "1*".toRegex()
+                val match = regex1.find(newString)?.value ?: ""
+                if (match != "") {
+                    val output = match.toInt()
+                    val converter = output.toString().map { 0 }.joinToString("").toInt()
+                    val replacement = String.format("0 %0${match.length}d", converter)
+                    myList.add(replacement)
+                }
+                newString.delete(0, match.length)
+            }
+        }
+    }
+
+    println("Encoded string:")
+
+    val finalString = myList.joinToString(" ")
+    println(finalString)
+
+}
+
+fun decrypts() {
+
+    val newString = StringBuilder()
+    val myList = mutableListOf<String>()
+
+    println("Input encoded string:")
+    val input = readln()
+    val check = checkEncodedString(input)
+    if (!check) return
+    newString.append(input)
+
+    while (newString.isNotEmpty()) {
+
+        if (newString.startsWith("0 ")) {
+            val regex1 = """0 0+""".toRegex()
+            val match = regex1.find(newString)?.value ?: ""
+            val result = match.substring(2).replace("0", "1", true)
+            myList.add(result)
+            newString.delete(0, match.length + 1)
+        }
+
+        if (newString.startsWith("00 ")) {
+            val regex1 = """00 0+""".toRegex()
+            val match = regex1.find(newString)?.value ?: ""
+            val result = match.substring(3)
+            myList.add(result)
+            newString.delete(0, match.length + 1)
+        }
+
+    }
+
+    val myListCombined = myList.joinToString("")
+
+    val newList = myListCombined.chunked(7)
+
+    println("Decoded string:")
+    for (item in newList) {
+        val nb = Integer.parseInt(item, 2)
+        val char = nb.toChar()
+        print(char)
+    }
+    println("")
+
+}
+
+fun checkEncodedString(str: String): Boolean {
+    val regex = """[0 ]+""".toRegex()
+    if (!str.matches(regex)) {
+        println("Encoded string is not valid.")
+        return false
+    }
+    val myList = str.split(" ")
+    for ((index, item) in myList.withIndex()) {
+        if (index % 2 == 0) {
+            if (!item.matches("00?".toRegex())) {
+                println("Encoded string is not valid.")
+                return false
+            }
+        }
+    }
+    if (myList.size % 2 != 0) {
+        println("Encoded string is not valid.")
+        return false
+    }
+    val sum = myList.foldIndexed(StringBuilder()) { index, acc, s ->
+        if (index % 2 != 0) acc.append(s) else acc.append("")
+    }
+    if (sum.length % 7 > 0) {
+        println("Encoded string is not valid.")
+        return false
+    }
+
+    return true
+}
